@@ -33,6 +33,9 @@ def home_page():
     """)
     if st.button("🚀 Submit Your Project"):
         st.experimental_set_query_params(page="submit_project")
+    
+    if st.button("📁 View Submitted Projects"):
+        st.experimental_set_query_params(page="projects")
 
 # Submit Project Page
 def submit_project_page():
@@ -88,7 +91,7 @@ def project_detail_page(project_id):
     if st.button("📄 Back to Projects List"):
         st.experimental_set_query_params(page="projects")
 
-# Projects List Page
+# Projects List Page (with Delete Button)
 def projects_list_page():
     st.set_page_config(page_title="All Projects", page_icon="📁")
     st.title("📁 All Submitted Projects")
@@ -100,8 +103,15 @@ def projects_list_page():
             st.subheader(f"🔹 Project {idx + 1}: {project['name']}")
             st.write(f"**Description:** {project['description']}")
             st.markdown(f"**URL:** [Visit Project]({project['url']})")
-            if st.button(f"View Details 🔍", key=f"view_{idx}"):
-                st.experimental_set_query_params(page="project", id=str(idx))
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button(f"View Details 🔍", key=f"view_{idx}"):
+                    st.experimental_set_query_params(page="project", id=str(idx))
+            with col2:
+                if st.button(f"Delete ❌", key=f"delete_{idx}"):
+                    del projects[idx]
+                    save_projects()
+                    st.experimental_rerun()
             st.markdown("---")
     
     st.markdown("---")
@@ -131,3 +141,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
