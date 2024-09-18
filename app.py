@@ -26,7 +26,7 @@ def save_projects():
 def home_page():
     st.set_page_config(page_title="Visualization Course Home", page_icon="📊")
     st.title("📊 Welcome to the Visualization Course!")
-    st.image("https://source.unsplash.com/featured/?visualization,code", use_column_width=True, caption="Visualize Your Ideas")
+    st.image("https://source.unsplash.com/1600x900/?visualization,data", use_column_width=True, caption="Visualize Your Ideas")
     st.write("""
         ### About the Course
         Welcome to the Visualization Course! This course will guide you through the fundamentals and advanced techniques of creating impactful visualizations. Showcase your projects and learn from others.
@@ -65,9 +65,10 @@ def submit_project_page():
             projects.append(project_info)
             save_projects()
             st.success("✅ Project successfully submitted!")
-            st.experimental_set_query_params(page="projects")
-
+    
     st.markdown("---")
+    
+    # After submission, a button to go back to the home page
     if st.button("🏠 Back to Home"):
         st.experimental_set_query_params(page="home")
 
@@ -83,7 +84,7 @@ def project_detail_page(project_id):
     st.title(f"🔍 Project {project_id + 1}: {project['name']}")
     st.write(f"**Description:** {project['description']}")
     st.markdown(f"**URL:** [Visit Project]({project['url']})")
-    st.image("https://source.unsplash.com/featured/?data,visualization", use_column_width=True, caption="Amazing Data Visualization")
+    st.image("https://source.unsplash.com/1600x900/?data,visualization", use_column_width=True, caption="Amazing Data Visualization")
     
     st.markdown("---")
     if st.button("🏠 Back to Home"):
@@ -111,7 +112,7 @@ def projects_list_page():
                 if st.button(f"Delete ❌", key=f"delete_{idx}"):
                     del projects[idx]
                     save_projects()
-                    st.experimental_rerun()
+                    st.experimental_set_query_params(page="projects")
             st.markdown("---")
     
     st.markdown("---")
@@ -141,4 +142,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
