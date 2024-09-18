@@ -1,34 +1,50 @@
 
-import os
 import streamlit as st
+import os
+import json
 
-# Directory to save the uploaded projects
-PROJECT_DIR = "uploaded_projects"
+# Directory to save the project information (URLs and descriptions)
+PROJECTS_FILE = "projects.json"
 
-# Ensure the directory exists
-if not os.path.exists(PROJECT_DIR):
-    os.makedirs(PROJECT_DIR)
+# Ensure the project file exists
+if not os.path.exists(PROJECTS_FILE):
+    with open(PROJECTS_FILE, 'w') as f:
+        json.dump([], f)
 
-st.title("Course Site - Upload and View Projects")
+# Load existing projects from the file
+with open(PROJECTS_FILE, 'r') as f:
+    projects = json.load(f)
 
-# File uploader widget
-uploaded_file = st.file_uploader("Upload a Python project", type=["py"])
+# Title of the app
+st.title("Course Site - Upload Project URLs")
 
-# Store uploaded file
-if uploaded_file:
-    # Save the file
-    file_path = os.path.join(PROJECT_DIR, uploaded_file.name)
-    with open(file_path, 'wb') as f:
-        f.write(uploaded_file.getbuffer())
-    st.success(f"File '{uploaded_file.name}' uploaded successfully!")
+# Form to submit a project URL and description
+with st.form(key="submit_project"):
+    project_url = st.text_input("Enter the project URL")
+    project_description = st.text_area("Enter a short description of the project")
 
-# Display buttons for each uploaded project
-st.write("### Uploaded Projects")
+    submit_button = st.form_submit_button("Submit Project")
 
-# List all uploaded projects
-projects = os.listdir(PROJECT_DIR)
-for project in projects:
-    # Create a button for each project
-    if st.button(f"Run {project}"):
-        # Update the query parameters to reflect the selected project
-        st.experimental_set_query_params(project=project)
+    # When the form is submitted, save the project information
+    if submit_button:
+        if project_url and project_description:
+            project_info = {
+                "url": project_url,
+                "description": project_description
+            }
+
+            # Save the new project to the file
+            projects.append(project_info)
+            with open(PROJECTS_FILE, 'w') as f:
+                json.dump(projects, f)
+
+            st.success("Project successfully submitted!")
+        else:
+            st.error("Please enter both a URL and a description.")
+
+# Sidebar section to list all uploaded projects
+st.sidebar.title("Project Links")
+for idx, project in enumerate(projects):
+    st.sidebar.write(f"### Project {idx + 1}")
+    st.sidebar.write(project["description"])
+    st.sidebar.markdown(f"[Visit Project]({project['url']})")
