@@ -26,7 +26,7 @@ def save_projects():
 def home_page():
     st.set_page_config(page_title="Visualization Course Home", page_icon="📊")
     st.title("📊 Welcome to the Visualization Course!")
-    st.image("https://source.unsplash.com/1600x900/?visualization,data", use_column_width=True, caption="Visualize Your Ideas")
+    st.image("Data-Visualization.jpg", use_column_width=True, caption="Visualize Your Ideas")
     st.write("""
         ### About the Course
         Welcome to the Visualization Course! This course will guide you through the fundamentals and advanced techniques of creating impactful visualizations. Showcase your projects and learn from others.
