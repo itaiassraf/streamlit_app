@@ -38,28 +38,28 @@ else:
     st.title("Course Site - Upload Project URLs")
 
     with st.form(key="submit_project"):
-    project_url = st.text_input("Enter the project URL", placeholder="https://example.com")
-    project_description = st.text_area("Enter a short description of the project")
+      project_url = st.text_input("Enter the project URL", placeholder="https://example.com")
+      project_description = st.text_area("Enter a short description of the project")
 
-    submit_button = st.form_submit_button("Submit Project")
+      submit_button = st.form_submit_button("Submit Project")
 
-    if submit_button:
-        if project_url.startswith("http://") or project_url.startswith("https://"):
-            if project_url and project_description:
-                project_info = {
-                    "url": project_url,
-                    "description": project_description
-                }
+      if submit_button:
+          if project_url.startswith("http://") or project_url.startswith("https://"):
+              if project_url and project_description:
+                  project_info = {
+                      "url": project_url,
+                      "description": project_description
+                  }
 
-                projects.append(project_info)
-                with open(PROJECTS_FILE, 'w') as f:
-                    json.dump(projects, f)
+                  projects.append(project_info)
+                  with open(PROJECTS_FILE, 'w') as f:
+                      json.dump(projects, f)
 
-                st.success("Project successfully submitted!")
-            else:
-                st.error("Please enter both a URL and a description.")
-        else:
-            st.error("Please enter a valid URL (starting with http:// or https://).")
+                  st.success("Project successfully submitted!")
+              else:
+                  st.error("Please enter both a URL and a description.")
+          else:
+              st.error("Please enter a valid URL (starting with http:// or https://).")
 
 
     # Sidebar section to list all uploaded projects
