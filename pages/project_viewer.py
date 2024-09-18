@@ -8,7 +8,7 @@ import io
 PROJECT_DIR = "uploaded_projects"
 
 # Get the project from the URL query parameters
-query_params = st.query_params
+query_params = st.experimental_get_query_params()
 selected_project = query_params.get('project', [None])[0]
 
 if selected_project:
