@@ -19,19 +19,23 @@ def home_page():
     st.title("Welcome to the Visualization Course")
     st.subheader("Create amazing visualizations and submit your projects!")
     st.image("https://source.unsplash.com/featured/?visualization,code", caption="Visualize Your Ideas")
+    
+    # Instead of rerunning the app, we just set query parameters here
     if st.button("Submit Your Project"):
         st.experimental_set_query_params(page="submit_project")
-        st.experimental_rerun()
 
 # Submit project page
 def submit_project_page():
     st.title("Submit Your Project")
     st.subheader("Please provide your project details below:")
+    
     with st.form(key="submit_project"):
         student_name = st.text_input("Enter your name")
         project_url = st.text_input("Enter the project URL", placeholder="https://example.com")
         project_description = st.text_area("Enter a short description of the project")
+        
         submit_button = st.form_submit_button("Submit Project")
+        
         if submit_button:
             if student_name and (project_url.startswith("http://") or project_url.startswith("https://")) and project_description:
                 project_info = {
@@ -94,5 +98,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
