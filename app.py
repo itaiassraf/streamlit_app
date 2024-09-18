@@ -30,8 +30,5 @@ projects = os.listdir(PROJECT_DIR)
 for project in projects:
     # Create a button for each project
     if st.button(f"Run {project}"):
-        # Set session state to store selected project
-        st.session_state.selected_project = project
         # Update the query parameters to reflect the selected project
         st.experimental_set_query_params(project=project)
-        st.experimental_rerun()
