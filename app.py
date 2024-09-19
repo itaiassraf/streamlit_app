@@ -49,9 +49,10 @@ def submit_project_page():
     st.write("Please provide the following details to submit your project:")
     
     with st.form(key="submit_project_form"):
-        student_name = st.text_input("🔹 Your Group Name")
+        student_name = st.text_input("🔹 Your Name")
         project_url = st.text_input("🔹 Project URL", placeholder="https://example.com")
         project_description = st.text_area("🔹 Short Description of Your Project")
+        delete_code = st.text_input("🔹 Set a Delete Code (for deleting your project later)")
         project_image = st.file_uploader("🔹 Upload an Image of Your Project (optional)", type=["jpg", "png", "jpeg"])
         submit_button = st.form_submit_button("Submit Project")
     
@@ -62,6 +63,8 @@ def submit_project_page():
             st.error("Please enter a valid URL (starting with http:// or https://).")
         elif not project_description.strip():
             st.error("Please enter a short description of your project.")
+        elif not delete_code.strip():
+            st.error("Please set a delete code.")
         else:
             # Save the image if uploaded
             image_filename = None
@@ -75,7 +78,8 @@ def submit_project_page():
                 "name": student_name.strip(),
                 "url": project_url.strip(),
                 "description": project_description.strip(),
-                "image": image_filename
+                "image": image_filename,
+                "delete_code": delete_code.strip()
             }
             projects.append(project_info)
             save_projects()
@@ -116,7 +120,7 @@ def project_detail_page(project_id):
     if st.button("📄 Back to Projects List"):
         st.experimental_set_query_params(page="projects")
 
-# Projects List Page (with Delete Button)
+# Projects List Page (with Delete Option for Own Projects)
 def projects_list_page():
     st.set_page_config(page_title="All Projects", page_icon="📁")
     st.title("📁 All Submitted Projects")
@@ -131,21 +135,25 @@ def projects_list_page():
             st.markdown(f"<div style='font-size: 16px;'><strong>Description:</strong> {project['description']}</div>", unsafe_allow_html=True)
             
             st.markdown(f"**URL:** [Visit Project]({project['url']})")
-            col1, col2 = st.columns(2)
+            col1, col2, col3 = st.columns([1, 1, 2])
             with col1:
                 if st.button(f"View Details 🔍", key=f"view_{idx}"):
                     st.experimental_set_query_params(page="project", id=str(idx))
             with col2:
+                delete_code_input = st.text_input("Enter Delete Code", key=f"delete_code_{idx}", type="password")
                 if st.button(f"Delete ❌", key=f"delete_{idx}"):
-                    # Remove image if exists
-                    if project.get("image"):
-                        image_path = os.path.join(IMAGES_DIR, project["image"])
-                        if os.path.exists(image_path):
-                            os.remove(image_path)
-                    
-                    del projects[idx]
-                    save_projects()
-                    st.experimental_set_query_params(page="projects")
+                    if delete_code_input.strip() == project.get("delete_code", ""):
+                        # Remove image if exists
+                        if project.get("image"):
+                            image_path = os.path.join(IMAGES_DIR, project["image"])
+                            if os.path.exists(image_path):
+                                os.remove(image_path)
+                        
+                        del projects[idx]
+                        save_projects()
+                        st.experimental_set_query_params(page="projects")
+                    else:
+                        st.error("Incorrect delete code. You can only delete your own project.")
             st.markdown("---")
     
     st.markdown("---")
