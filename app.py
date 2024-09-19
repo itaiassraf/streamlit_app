@@ -1,14 +1,19 @@
 import streamlit as st
 import os
 import json
+from PIL import Image
 
-# Path to the projects file
+# Path to the projects file and image directory
 PROJECTS_FILE = "projects.json"
+IMAGES_DIR = "project_images"
 
-# Ensure the projects file exists
+# Ensure the projects file and image directory exist
 if not os.path.exists(PROJECTS_FILE):
     with open(PROJECTS_FILE, 'w') as f:
         json.dump([], f)
+
+if not os.path.exists(IMAGES_DIR):
+    os.makedirs(IMAGES_DIR)
 
 # Load existing projects
 with open(PROJECTS_FILE, 'r') as f:
@@ -26,7 +31,7 @@ def save_projects():
 def home_page():
     st.set_page_config(page_title="Visualization Course Home", page_icon="📊")
     st.title("📊 Welcome to the Visualization Course!")
-    st.image("Data-Visualization.jpg", use_column_width=True, caption="Visualize Your Ideas")
+    st.image("https://source.unsplash.com/1600x900/?visualization,data", use_column_width=True, caption="Visualize Your Ideas")
     st.write("""
         ### About the Course
         Welcome to the Visualization Course! This course will guide you through the fundamentals and advanced techniques of creating impactful visualizations. Showcase your projects and learn from others.
@@ -47,6 +52,7 @@ def submit_project_page():
         student_name = st.text_input("🔹 Your Name")
         project_url = st.text_input("🔹 Project URL", placeholder="https://example.com")
         project_description = st.text_area("🔹 Short Description of Your Project")
+        project_image = st.file_uploader("🔹 Upload an Image of Your Project (optional)", type=["jpg", "png", "jpeg"])
         submit_button = st.form_submit_button("Submit Project")
     
     if submit_button:
@@ -57,10 +63,19 @@ def submit_project_page():
         elif not project_description.strip():
             st.error("Please enter a short description of your project.")
         else:
+            # Save the image if uploaded
+            image_filename = None
+            if project_image is not None:
+                image_filename = f"{len(projects)}_{project_image.name}"
+                image_path = os.path.join(IMAGES_DIR, image_filename)
+                with open(image_path, "wb") as f:
+                    f.write(project_image.getbuffer())
+            
             project_info = {
                 "name": student_name.strip(),
                 "url": project_url.strip(),
-                "description": project_description.strip()
+                "description": project_description.strip(),
+                "image": image_filename
             }
             projects.append(project_info)
             save_projects()
@@ -82,9 +97,18 @@ def project_detail_page(project_id):
         return
 
     st.title(f"🔍 Project {project_id + 1}: {project['name']}")
-    st.write(f"**Description:** {project['description']}")
+    
+    # Increase font size for the description
+    st.markdown(f"<div style='font-size: 18px;'><strong>Description:</strong> {project['description']}</div>", unsafe_allow_html=True)
     st.markdown(f"**URL:** [Visit Project]({project['url']})")
-    st.image("https://source.unsplash.com/1600x900/?data,visualization", use_column_width=True, caption="Amazing Data Visualization")
+    
+    # Display the uploaded image if available
+    if project.get("image"):
+        image_path = os.path.join(IMAGES_DIR, project["image"])
+        if os.path.exists(image_path):
+            st.image(image_path, caption=f"Project Image: {project['name']}", use_column_width=True)
+    else:
+        st.image("https://source.unsplash.com/1600x900/?data,visualization", use_column_width=True, caption="Amazing Data Visualization")
     
     st.markdown("---")
     if st.button("🏠 Back to Home"):
@@ -102,7 +126,10 @@ def projects_list_page():
     else:
         for idx, project in enumerate(projects):
             st.subheader(f"🔹 Project {idx + 1}: {project['name']}")
-            st.write(f"**Description:** {project['description']}")
+            
+            # Increase font size for the description in the list
+            st.markdown(f"<div style='font-size: 16px;'><strong>Description:</strong> {project['description']}</div>", unsafe_allow_html=True)
+            
             st.markdown(f"**URL:** [Visit Project]({project['url']})")
             col1, col2 = st.columns(2)
             with col1:
@@ -110,6 +137,12 @@ def projects_list_page():
                     st.experimental_set_query_params(page="project", id=str(idx))
             with col2:
                 if st.button(f"Delete ❌", key=f"delete_{idx}"):
+                    # Remove image if exists
+                    if project.get("image"):
+                        image_path = os.path.join(IMAGES_DIR, project["image"])
+                        if os.path.exists(image_path):
+                            os.remove(image_path)
+                    
                     del projects[idx]
                     save_projects()
                     st.experimental_set_query_params(page="projects")
